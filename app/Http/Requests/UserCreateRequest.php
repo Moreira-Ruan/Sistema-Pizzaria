@@ -20,6 +20,7 @@ class UserCreateRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
+    
     public function rules(): array
     {
         return [
@@ -39,7 +40,7 @@ class UserCreateRequest extends FormRequest
             'password_confirmation' => 'required|same:password'
         ];
     }
-
+    
     public function messages()
     {
         return [
