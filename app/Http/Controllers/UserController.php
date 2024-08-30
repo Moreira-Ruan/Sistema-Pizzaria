@@ -10,8 +10,8 @@ use Illuminate\Http\Request;
  * Class UserController
  *
  * @package App\Http\Controllers
- * @author Vinícius Sarmento
- * @link https://github.com/ViniciusSCS
+ * @author Ruan Moreira
+ * @link https://github.com/Moreira-Ruan
  * @date 2024-08-23 21:48:54
  * @copyright UniEVANGÉLICA
  */
