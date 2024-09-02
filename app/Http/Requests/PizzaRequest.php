@@ -25,9 +25,9 @@ class PizzaRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:50',
+            'descricao' => 'required|string|max:255',
             'tamanho' => 'required|string|max:255',
             'forma' => 'required|string|max:255',
-            'descricao' => 'required|string|max:255',
         ];
     }
     

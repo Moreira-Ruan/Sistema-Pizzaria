@@ -22,7 +22,7 @@ class PizzaController extends Controller
      */
     public function index()
     {
-        $product = Product::select('nome', 'tamanho', 'forma', 'descricao')->paginate('10');
+        $product = Product::select('nome', 'descricao', 'tamanho', 'forma')->paginate('10');
 
         return [
             'status' => 200,
