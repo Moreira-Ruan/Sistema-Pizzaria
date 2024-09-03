@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PizzaRequest;
-use App\Models\Product;
+use App\Models\Pizza;
 use Illuminate\Http\Request;
 
 /**
@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
  * @date 2024-08-23 21:48:54
  * @copyright UniEVANGÉLICA
  */
+
 class PizzaController extends Controller
 {
     /**
@@ -22,37 +23,46 @@ class PizzaController extends Controller
      */
     public function index()
     {
-        $product = Product::select('nome', 'descricao', 'tamanho', 'forma')->paginate('10');
+        $pizza = Pizza::select('name', 'description', 'size', 'format')->paginate('10');
 
         return [
             'status' => 200,
-            'menssagem' => 'Pizza encontrada!!',
-            'product' => $product
+            'menssagem' => 'Pizzas encontradas!!',
+            'user' => $pizza
         ];
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create() {}
+    public function create()
+    {
+        //
+    }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(PizzaRequest $request)
     {
+    
         $data = $request->all();
 
-        $user = Product::create([
+        $pizza = Pizza::create([
             'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => bcrypt($data['password']),
+            'description' => $data['description'],
+            'size' => $data['size'],
+            'format' => $data['format'],
         ]);
+        /*
+        $validateData = $request->validated();
 
+        $pizza = Pizza::create($validateData);
+        */
         return [
             'status' => 200,
-            'menssagem' => 'Usuário cadastrado com sucesso!!',
-            'user' => $user
+            'menssagem' => 'Pizza cadastrada com sucesso!!',
+            'user' => $pizza
         ];
     }
 
@@ -77,26 +87,7 @@ class PizzaController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $user = Product::find($id);
-
-        if (!$user) {
-            return response()->json([
-                'status' => 404,
-                'mensagem' => 'Usuário não encontrado!'
-            ], 404);
-        }
-
-        $user->update([
-            'name' => $request->input('name'),
-            'email' => $request->input('email'),
-            'password' => $request->input('password') ? bcrypt($request->input('password')) : $user->password,
-        ]);
-
-        return response()->json([
-            'status' => 200,
-            'mensagem' => 'Usuário atualizado com sucesso!',
-            'user' => $user
-        ]);
+        //
     }
 
     /**
@@ -104,20 +95,6 @@ class PizzaController extends Controller
      */
     public function destroy(string $id)
     {
-        $user = Product::find($id);
-
-        if (!$user) {
-            return response()->json([
-                'status' => 404,
-                'mensagem' => 'Usuário não encontrado!'
-            ], 404);
-        }
-
-        $user->delete();
-
-        return response()->json([
-            'status' => 200,
-            'mensagem' => 'Usuário deletado com sucesso!'
-        ]);
+        //
     }
 }

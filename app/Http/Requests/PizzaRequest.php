@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Password;
 
 class PizzaRequest extends FormRequest
 {
@@ -20,19 +19,22 @@ class PizzaRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    
     public function rules(): array
     {
         return [
             'name' => 'required|string|max:50',
-            'descricao' => 'required|string|max:255',
-            'tamanho' => 'required|string|max:255',
-            'forma' => 'required|string|max:255',
+            'description' => 'required|string|max:500',
+            'size' => 'required|string|max:50',
+            'format' => 'required|string|max:50',
         ];
     }
-    
+
     public function messages()
     {
-        
+        return [
+            'required' => 'O campo :attribute é obrigatório.',
+            'string' => 'O campo :attribute deve ser uma string.',
+            'max' => 'O campo :attribute deve ter no máximo :max.'
+        ];
     }
 }
