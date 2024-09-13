@@ -23,12 +23,12 @@ class PizzaController extends Controller
      */
     public function index()
     {
-        $pizza = Pizza::select('name', 'description', 'size', 'format')->paginate('10');
+        $pizza = Pizza::select('name', 'description', 'size', 'format', 'price')->paginate('10');
 
         return [
             'status' => 200,
             'menssagem' => 'Pizzas encontradas!!',
-            'user' => $pizza
+            'pizza' => $pizza
         ];
     }
 
@@ -53,6 +53,7 @@ class PizzaController extends Controller
             'description' => $data['description'],
             'size' => $data['size'],
             'format' => $data['format'],
+            'price' => $data['price'],
         ]);
         /*
         $validateData = $request->validated();
@@ -62,7 +63,7 @@ class PizzaController extends Controller
         return [
             'status' => 200,
             'menssagem' => 'Pizza cadastrada com sucesso!!',
-            'user' => $pizza
+            'pizza' => $pizza
         ];
     }
 

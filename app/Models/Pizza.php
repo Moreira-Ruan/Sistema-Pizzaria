@@ -20,6 +20,7 @@ class Pizza extends Model
         'description',
         'size',
         'format',
+        'price',
     ];
 
 }
