@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Enums\TamanhoEnum;
 use App\Http\Requests\PizzaRequest;
 use App\Models\Pizza;
 use Illuminate\Http\Request;
@@ -45,13 +46,13 @@ class PizzaController extends Controller
      */
     public function store(PizzaRequest $request)
     {
-    
+
         $data = $request->all();
 
         $pizza = Pizza::create([
             'name' => $data['name'],
             'description' => $data['description'],
-            'size' => $data['size'],
+            'size' => TamanhoEnum::from($data['size']),
             'format' => $data['format'],
             'price' => $data['price'],
         ]);
@@ -72,7 +73,21 @@ class PizzaController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $pizza = Pizza::find($id);
+
+        if (!$pizza) {
+            return [
+                'status' => 404,
+                'message' => 'Pizza não encontrada!',
+                'pizza' => $pizza
+            ];
+        }
+
+        return [
+            'status' => 200,
+            'message' => 'Pizza encontrada com sucesso!',
+            'pizza' => $pizza
+        ];
     }
 
     /**
@@ -88,7 +103,28 @@ class PizzaController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $pizza = Pizza::find($id);
+
+        if (!$pizza) {
+            return response()->json([
+                'status' => 404,
+                'mensagem' => 'Pizza não encontrada!'
+            ], 404);
+        }
+
+        $pizza->update([
+            'name' => $request->input('name'),
+            'description' => $request->input('description'),
+            'size' => $request->input('size'),
+            'format' => $request->input('format'),
+            'price' => $request->input('price'),
+        ]);
+
+        return response()->json([
+            'status' => 200,
+            'mensagem' => 'Pizza atualizada com sucesso!',
+            'pizza' => $pizza
+        ]);
     }
 
     /**
@@ -96,6 +132,20 @@ class PizzaController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $pizza = Pizza::find($id);
+
+        if (!$pizza) {
+            return response()->json([
+                'status' => 404,
+                'mensagem' => 'Pizza não encontrada!'
+            ], 404);
+        }
+
+        $pizza->delete();
+
+        return response()->json([
+            'status' => 200,
+            'mensagem' => 'Pizza deletada com sucesso!'
+        ]);
     }
 }
