@@ -14,16 +14,16 @@ class AuthController extends Controller
     {
         $this->tokenRepository = $tokenRepository;
     }
-    
+
     public function login(Request $request)
     {
         //Receber a credencial (email e senha)
-        $data = $request->all();
+        $credential = $request->only('email', 'password');
 
         //Verificoaas credenciais estão no Banco
-        if (Auth::attempt(['email' => strtolower($data['email']), 'password' => $data['password']])) {
+        if (Auth::guard('web')->attempt(['email' => strtolower($credential['email']), 'password' => $credential['password']])) {
             //Autentica o usuário
-            $user = auth()->user();
+            $user = auth()->guard('web')->user();
 
             //cria um token
             $user->token = $user->createToken($user->email)->accessToken;
@@ -39,13 +39,15 @@ class AuthController extends Controller
             ];
         }
     }
-    
+
     public function logout(Request $request)
     {
-        $tokenId = $request->user()->token()->id;
+        $token = $request->user()->token();
+        if ($token) {
+            $this->tokenRepository->revokeAccessToken($token->id);
+            return ['status' => true, 'message' => "Usuário deslogado com sucesso!"];
+        }
 
-        $this->tokenRepository->revokeAccessToken($tokenId);
-
-        return ['status' => true, 'message' => "Usuário deslogado com sucesso!"];
+        return ['status' => false, 'message' => "Token não encontrado!"];
     }
 }
