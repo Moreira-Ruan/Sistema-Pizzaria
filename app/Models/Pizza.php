@@ -14,11 +14,6 @@ class Pizza extends Model
         'size' => TamanhoEnum::class
     ];
     
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
         'description',

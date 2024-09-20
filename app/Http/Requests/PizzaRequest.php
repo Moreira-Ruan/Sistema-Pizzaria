@@ -22,10 +22,11 @@ class PizzaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:50',
-            'description' => 'required|string|max:500',
-            'size' => 'required|string|max:50',
-            'format' => 'required|string|max:50',
+            'name' => 'required|string',
+            'description' => 'required|string',
+            'size' => 'required|string',
+            'format' => 'required|string',
+            'price' => 'required|numeric',
         ];
     }
 
@@ -34,7 +35,7 @@ class PizzaRequest extends FormRequest
         return [
             'required' => 'O campo :attribute é obrigatório.',
             'string' => 'O campo :attribute deve ser uma string.',
-            'max' => 'O campo :attribute deve ter no máximo :max.'
+            'numeric' => 'O campo :attribute deve ser um número.',
         ];
     }
 }

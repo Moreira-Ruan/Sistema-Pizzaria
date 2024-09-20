@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserCreateRequest;
+use App\Http\Requests\UserUpdateRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -22,7 +23,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $user = User::select('id', 'name', 'email')->paginate('10');
+        $user = User::select('id', 'name', 'email')->paginate(10);
 
         return [
             'status' => 200,
@@ -89,28 +90,27 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UserUpdateRequest $request, string $id)
     {
+        $data = $request->all();
+
         $user = User::find($id);
 
-        if (!$user) {
-            return response()->json([
+        if(!$user){
+            return [
                 'status' => 404,
-                'mensagem' => 'Usuário não encontrado!'
-            ], 404);
+                'message' => 'Usuário não encontrado!',
+                'user' => $user
+            ];
         }
 
-        $user->update([
-            'name' => $request->input('name'),
-            'email' => $request->input('email'),
-            'password' => $request->input('password') ? bcrypt($request->input('password')) : $user->password,
-        ]);
+        $user->update($data);
 
-        return response()->json([
+        return [
             'status' => 200,
-            'mensagem' => 'Usuário atualizado com sucesso!',
+            'message' => 'Usuário atualizado com sucesso!!',
             'user' => $user
-        ]);
+        ];
     }
 
     /**
