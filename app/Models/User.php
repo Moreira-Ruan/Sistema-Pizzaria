@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -35,15 +34,21 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * The attributes that should be cast to native types.
      *
-     * @return array<string, string>
+     * @var array<string, string>
      */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed', // Laravel 8+ tem suporte para hash automático
+    ];
+
+    /**
+     * Soft delete feature - Include deleted users in queries if necessary
+     * protected static function booted() {
+     *     static::addGlobalScope('includeDeleted', function (Builder $builder) {
+     *         $builder->withTrashed(); // Optional if you need to include deleted users in certain queries.
+     *     });
+     * }
+     */
 }

@@ -1,181 +1,262 @@
 
-# Sistema de Gestão de Pizzaria com API em Laravel
+# **Documentação Completa do Sistema de Pizzaria API**
 
-Este projeto é uma API backend construída em **Laravel** para gerenciar pedidos de uma pizzaria. O sistema inclui recursos para gerenciar usuários e pizzas, com autenticação via **Laravel Passport** (OAuth2). As operações incluem o CRUD (criar, ler, atualizar e deletar) tanto para **usuários** quanto para **pizzas**.
+## **Introdução**
 
-## Funcionalidades
+Este documento descreve o funcionamento do sistema de API para uma pizzaria, explica o fluxo completo de uso, além de detalhes importantes para garantir o correto funcionamento da aplicação. O sistema foi desenvolvido utilizando **Laravel** com **Passport** para autenticação com **JWT**, incluindo mecanismos de log, tratamento de erros e validações.
 
-- **Autenticação** via **Laravel Passport** (OAuth2).
-- Gerenciamento de **usuários** com CRUD (criar, listar, atualizar, deletar).
-- Gerenciamento de **pizzas** com CRUD (criar, listar, atualizar, deletar).
-- Paginação de resultados para melhorar o desempenho em listas grandes.
-- Validação robusta com **Form Requests** personalizados.
+## **Pré-requisitos**
 
-## Requisitos
+### 1. Instalação do PHP
+Antes de tudo, verifique se você tem o PHP instalado. Use o comando:
 
-- PHP >= 8.0
-- Composer
-- MySQL
-- Laravel 9.x
-- Laravel Passport (OAuth2)
+```bash
+php -v
+```
 
-## Instalação
+Se não estiver instalado, siga as instruções do [site oficial do PHP](https://www.php.net/downloads) para instalar a versão mais recente.
 
-Siga os passos abaixo para rodar o projeto localmente:
+### 2. Instalação do Composer
+O Composer é necessário para gerenciar as dependências do Laravel. Verifique se o Composer está instalado com:
 
-1. Clone este repositório:
-   ```bash
-   git clone https://github.com/seuusuario/suaprojeto.git
-   ```
+```bash
+composer -v
+```
 
-2. Instale as dependências via Composer:
-   ```bash
-   composer install
-   ```
+Se não estiver, baixe-o [aqui](https://getcomposer.org/download/).
 
-3. Configure o arquivo `.env` com as informações do banco de dados e do Passport:
-   ```bash
-   cp .env.example .env
-   ```
+### 3. Instalação do Laravel
+Para instalar o Laravel globalmente, execute:
 
-4. Gere a chave da aplicação:
-   ```bash
-   php artisan key:generate
-   ```
+```bash
+composer global require laravel/installer
+```
 
-5. Execute as migrações do banco de dados:
-   ```bash
-   php artisan migrate
-   ```
+Verifique se a instalação foi bem-sucedida com o comando:
 
-6. Instale o Passport para gerenciar a autenticação via OAuth2:
-   ```bash
-   php artisan passport:install
-   ```
+```bash
+laravel --version
+```
 
-7. Inicie o servidor:
-   ```bash
-   php artisan serve
-   ```
+### 4. Instalação da extensão do PHP no VS Code
+Abra o VS Code e instale a extensão de PHP para facilitar o desenvolvimento e depuração.
 
-## Uso
+- Vá para a aba de extensões (ícone de quadrados na barra lateral).
+- Busque por "PHP Extension Pack" e instale.
 
-### Autenticação
+### **5. Instalação do Projeto**
+Após clonar o repositório, navegue até a pasta do projeto e instale as dependências do Composer:
 
-#### Login
+```bash
+composer install
+```
 
-- **POST** `/api/login`
+### **6. Configuração do `.env`**
+O arquivo `.env` deve conter as seguintes informações ajustadas conforme seu ambiente:
+
+```plaintext
+APP_NAME="Sistema de Pizzaria"
+APP_ENV=local
+APP_KEY=base64:chave_gerada_pelo_artisan_key_generate
+APP_DEBUG=true
+APP_URL=http://localhost
+
+LOG_CHANNEL=stack
+LOG_LEVEL=debug
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=sistema_pizzaria
+DB_USERNAME=root
+DB_PASSWORD=
+
+BROADCAST_DRIVER=log
+CACHE_DRIVER=file
+QUEUE_CONNECTION=sync
+SESSION_DRIVER=file
+SESSION_LIFETIME=120
+
+PASSPORT_CLIENT_ID=seu_client_id
+PASSPORT_CLIENT_SECRET=sua_client_secret
+JWT_SECRET=sua_jwt_secret
+```
+
+### **7. Gerando o JWT_SECRET**
+Para gerar o JWT secret, execute o comando abaixo:
+
+```bash
+php artisan jwt:secret
+```
+Isso irá adicionar a chave `JWT_SECRET` ao seu arquivo `.env`.
+
+### **8. Gerar o `APP_KEY`**
+Caso o `APP_KEY` ainda não esteja definido no `.env`, execute o comando:
+
+```bash
+php artisan key:generate
+```
+
+### **9. Executando as Migrações**
+Agora, com o banco de dados configurado, rode as migrações:
+
+```bash
+php artisan migrate
+```
+
+### **10. Criando o Passport Client**
+O Laravel Passport requer que você crie um client para autenticação. Para criar o client, execute:
+
+```bash
+php artisan passport:install
+```
+
+Após criar o client, copie o `client_id` e `client_secret` gerados e adicione-os ao seu arquivo `.env` nas seguintes variáveis:
+
+```plaintext
+PASSPORT_CLIENT_ID=client_id_gerado
+PASSPORT_CLIENT_SECRET=client_secret_gerado
+```
+
+### **11. Limpar e Otimizar o Cache**
+Para garantir que não haja conflitos ou informações em cache que possam causar problemas, execute os seguintes comandos para limpar e otimizar o sistema:
+
+```bash
+php artisan config:clear
+php artisan cache:clear
+php artisan route:clear
+php artisan view:clear
+php artisan optimize
+```
+
+Esses comandos garantem que o cache do sistema seja limpo e que todas as alterações feitas sejam aplicadas corretamente.
+
+---
+
+## **Listagem de Rotas e Explicação**
+
+### **Rota de Teste**
+- **Rota:** `GET /api/test`
+- **Descrição:** Esta rota é usada para testar o servidor e garantir que ele esteja funcionando corretamente. Retorna um simples JSON com status `ok`.
+
+---
+
+### **Rotas de Autenticação (Públicas)**
+
+#### **Login**
+- **Rota:** `POST /api/public/login`
+- **Descrição:** Realiza o login de um usuário com base nas credenciais (email e senha). Se autenticado com sucesso, retorna um token JWT.
   
-  Exemplo de payload:
-  ```json
-  {
-    "email": "exemplo@dominio.com",
-    "password": "senha"
-  }
-  ```
-  Resposta:
-  ```json
-  {
-    "status": 200,
-    "message": "Usuário logado com sucesso",
-    "usuario": { "id": 1, "name": "Exemplo", "token": "..." }
-  }
-  ```
+Exemplo de body (JSON):
+```json
+{
+  "email": "admin@example.com",
+  "password": "Admin@123"
+}
+```
 
-#### Logout
+#### **Cadastro de Usuário**
+- **Rota:** `POST /api/public/cadastrar`
+- **Descrição:** Realiza o cadastro de um novo usuário. É necessário fornecer nome, email, senha e a confirmação da senha.
 
-- **POST** `/api/logout`
+Exemplo de body (JSON):
+```json
+{
+  "name": "Admin",
+  "email": "admin@example.com",
+  "password": "Admin@123",
+  "password_confirmation": "Admin@123"
+}
+```
+
+**Atenção:** A senha deve atender às seguintes regras:
+- No mínimo 8 caracteres.
+- Deve conter letras maiúsculas e minúsculas, números e símbolos.
+
+---
+
+### **Rotas Protegidas (Necessário Token de Autenticação)**
+
+#### **Logout**
+- **Rota:** `POST /api/logout`
+- **Descrição:** Realiza o logout do usuário e revoga o token JWT.
   
-  Requer o token de autorização (Bearer Token).
+#### **Listar Usuários**
+- **Rota:** `GET /api/user`
+- **Descrição:** Retorna uma lista de usuários cadastrados no sistema.
 
-### Gerenciamento de Usuários
+#### **Visualizar Usuário**
+- **Rota:** `GET /api/user/visualizar/{id}`
+- **Descrição:** Retorna os detalhes de um usuário específico com base no ID.
 
-#### Listar Usuários
+#### **Atualizar Usuário**
+- **Rota:** `PUT /api/user/atualizar/{id}`
+- **Descrição:** Atualiza os dados de um usuário.
 
-- **GET** `/api/user`
-  
-  Requer o token de autorização.
+Exemplo de body (JSON):
+```json
+{
+  "name": "Novo Nome",
+  "email": "novoemail@example.com",
+  "password": "NewPass@123",
+  "password_confirmation": "NewPass@123"
+}
+```
 
-#### Criar Usuário
+#### **Deletar Usuário**
+- **Rota:** `DELETE /api/user/deletar/{id}`
+- **Descrição:** Deleta um usuário específico com base no ID.
 
-- **POST** `/api/cadastrar`
-  
-  Exemplo de payload:
-  ```json
-  {
-    "name": "Novo Usuário",
-    "email": "novo@dominio.com",
-    "password": "Senha123!",
-    "password_confirmation": "Senha123!"
-  }
-  ```
+---
 
-### Gerenciamento de Pizzas
+### **Rotas Relacionadas a Pizzas**
 
-#### Listar Pizzas
+#### **Listar Pizzas (Pública)**
+- **Rota:** `GET /api/pizza`
+- **Descrição:** Retorna uma lista de pizzas cadastradas no sistema. Esta rota é pública, qualquer usuário pode acessá-la.
 
-- **GET** `/api/pizza`
-  
-  Retorna uma lista de pizzas cadastradas.
+#### **Cadastrar Pizza (Protegida)**
+- **Rota:** `POST /api/pizza/cadastrar`
+- **Descrição:** Cadastra uma nova pizza no sistema.
 
-#### Cadastrar Pizza
+Exemplo de body (JSON):
+```json
+{
+  "name": "Pizza Margherita",
+  "description": "Pizza com molho de tomate e queijo",
+  "size": "médio",
+  "format": "redonda",
+  "price": 25.00
+}
+```
 
-- **POST** `/api/pizza/cadastrar`
-  
-  Exemplo de payload:
-  ```json
-  {
-    "name": "Pizza de Calabresa",
-    "description": "Deliciosa pizza de calabresa",
-    "size": "media",
-    "format": "quadrada",
-    "price": 39.99
-  }
-  ```
+**Atenção:** O campo `price` deve ser um valor numérico (exemplo: 25.00). Qualquer valor fora desse padrão será rejeitado pela validação.
 
-#### Atualizar Pizza
+#### **Visualizar Pizza (Pública)**
+- **Rota:** `GET /api/pizza/visualizar/{id}`
+- **Descrição:** Retorna os detalhes de uma pizza específica com base no ID.
 
-- **PUT** `/api/pizza/atualizar/{id}`
-  
-  Exemplo de payload:
-  ```json
-  {
-    "name": "Pizza de Calabresa Atualizada",
-    "description": "Descrição atualizada",
-    "size": "grande",
-    "format": "redonda",
-    "price": 49.99
-  }
-  ```
+#### **Atualizar Pizza (Protegida)**
+- **Rota:** `PUT /api/pizza/atualizar/{id}`
+- **Descrição:** Atualiza as informações de uma pizza existente.
 
-#### Deletar Pizza
+#### **Deletar Pizza (Protegida)**
+- **Rota:** `DELETE /api/pizza/deletar/{id}`
+- **Descrição:** Deleta uma pizza do sistema com base no ID.
 
-- **DELETE** `/api/pizza/deletar/{id}`
-  
-  Exclui uma pizza existente pelo ID.
+---
 
-## Estrutura de Código
+## **Tratamento de Erros e Logs**
 
-O projeto segue o padrão **MVC (Model-View-Controller)**. Aqui estão alguns dos principais arquivos do projeto:
+O sistema faz uso de blocos `try-catch` para capturar erros e exceções, garantindo que, em caso de falhas, o sistema retorne mensagens apropriadas para o cliente da API e registre os detalhes do erro nos logs.
 
-- `AuthController.php`: Gerencia as funcionalidades de login e logout com Laravel Passport.
-- `PizzaController.php`: Gerencia o CRUD das pizzas.
-- `UserController.php`: Gerencia o CRUD dos usuários.
-- `PizzaRequest.php`: Validação das requisições para cadastro e atualização de pizzas.
-- `UserCreateRequest.php` e `UserUpdateRequest.php`: Validação das requisições para cadastro e atualização de usuários.
-- `auth.php`: Configurações de autenticação e guardas no Laravel.
-- `api.php`: Definições das rotas da API.
+- **Logs:** São gravados no arquivo `storage/logs/laravel.log`.
+- **Exemplo de Log:** Cada vez que um método importante é executado, um log é gerado, como quando um usuário é cadastrado, atualizado ou deletado.
 
-## Tecnologias Utilizadas
+---
 
-- **Laravel Passport**: Autenticação via OAuth2.
-- **Eloquent ORM**: Interação com o banco de dados de forma orientada a objetos.
-- **Laravel Form Requests**: Para validação de dados.
+## **Considerações Finais**
 
-## Autor
+Seguindo esta documentação, qualquer pessoa, mesmo com pouco conhecimento em APIs e Laravel, deve ser capaz de configurar e rodar o projeto corretamente. Certifique-se de seguir os passos com atenção, principalmente ao configurar o `.env` e as validações dos campos nas rotas.
 
-- **Ruan Moreira** - [GitHub](https://github.com/Moreira-Ruan)
-
-## Licença
-
-Este projeto está licenciado sob a licença MIT. Consulte o arquivo LICENSE para obter mais detalhes.
+---

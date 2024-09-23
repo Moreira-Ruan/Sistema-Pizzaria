@@ -1,34 +1,57 @@
 <?php
-// app/Providers/AuthServiceProvider.php
 
 namespace App\Providers;
 
-use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
-use Laravel\Passport\Passport;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 
-class AuthServiceProvider extends ServiceProvider
+class RouteServiceProvider extends ServiceProvider
 {
     /**
-     * The policy mappings for the application.
+     * The path to the "home" route for your application.
      *
-     * @var array
+     * @var string
      */
-    protected $policies = [
-        // 'App\Models\Model' => 'App\Policies\ModelPolicy',
-    ];
+    public const HOME = '/home';
 
     /**
-     * Register any authentication / authorization services.
+     * Define your route model bindings, pattern filters, etc.
      */
     public function boot(): void
     {
-        $this->registerPolicies();
-        
-        Passport::routes();
+        // Custom bindings or patterns can go here
+        parent::boot();
+    }
 
-        Passport::tokensExpireIn(now()->addMinutes(60));
-        Passport::refreshTokensExpireIn(now()->addDays(30));
-        Passport::personalAccessTokensExpireIn(now()->addMinutes(120));
+    /**
+     * Define the routes for the application.
+     */
+    public function map(): void
+    {
+        $this->mapApiRoutes();
+        $this->mapWebRoutes();
+    }
+
+    /**
+     * Define the "web" routes for the application.
+     * These routes all receive session state, CSRF protection, etc.
+     */
+    protected function mapWebRoutes(): void
+    {
+        Route::middleware('web')
+             ->namespace($this->namespace)
+             ->group(base_path('routes/web.php'));
+    }
+
+    /**
+     * Define the "api" routes for the application.
+     * These routes are typically stateless.
+     */
+    protected function mapApiRoutes(): void
+    {
+        Route::prefix('api')
+             ->middleware('api')
+             ->namespace($this->namespace)
+             ->group(base_path('routes/api.php'));
     }
 }

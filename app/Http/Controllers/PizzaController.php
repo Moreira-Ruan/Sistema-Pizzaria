@@ -11,12 +11,7 @@ use Illuminate\Http\Request;
  * Class PizzaController
  *
  * @package App\Http\Controllers
- * @author Ruan Moreira
- * @link https://github.com/Moreira-Ruan
- * @date 2024-08-23 21:48:54
- * @copyright UniEVANGÉLICA
  */
-
 class PizzaController extends Controller
 {
     /**
@@ -24,21 +19,20 @@ class PizzaController extends Controller
      */
     public function index()
     {
-        $pizza = Pizza::select('name', 'description', 'size', 'format', 'price')->paginate('10');
-
-        return [
-            'status' => 200,
-            'menssagem' => 'Pizzas encontradas!!',
-            'pizza' => $pizza
-        ];
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        try {
+            $pizzas = Pizza::select('name', 'description', 'size', 'format', 'price')->paginate(10);
+            return response()->json([
+                'status' => 200,
+                'mensagem' => 'Pizzas encontradas com sucesso!',
+                'pizzas' => $pizzas
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 500,
+                'mensagem' => 'Erro ao listar pizzas!',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -46,26 +40,28 @@ class PizzaController extends Controller
      */
     public function store(PizzaRequest $request)
     {
+        try {
+            $validatedData = $request->validated();
+            $pizza = Pizza::create([
+                'name' => $validatedData['name'],
+                'description' => $validatedData['description'],
+                'size' => TamanhoEnum::from($validatedData['size']),
+                'format' => $validatedData['format'],
+                'price' => $validatedData['price'],
+            ]);
 
-        $data = $request->all();
-
-        $pizza = Pizza::create([
-            'name' => $data['name'],
-            'description' => $data['description'],
-            'size' => TamanhoEnum::from($data['size']),
-            'format' => $data['format'],
-            'price' => $data['price'],
-        ]);
-        /*
-        $validateData = $request->validated();
-
-        $pizza = Pizza::create($validateData);
-        */
-        return [
-            'status' => 200,
-            'menssagem' => 'Pizza cadastrada com sucesso!!',
-            'pizza' => $pizza
-        ];
+            return response()->json([
+                'status' => 200,
+                'mensagem' => 'Pizza cadastrada com sucesso!',
+                'pizza' => $pizza
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 500,
+                'mensagem' => 'Erro ao cadastrar pizza!',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -73,58 +69,66 @@ class PizzaController extends Controller
      */
     public function show(string $id)
     {
-        $pizza = Pizza::find($id);
+        try {
+            $pizza = Pizza::find($id);
 
-        if (!$pizza) {
-            return [
-                'status' => 404,
-                'message' => 'Pizza não encontrada!',
+            if (!$pizza) {
+                return response()->json([
+                    'status' => 404,
+                    'mensagem' => 'Pizza não encontrada!',
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => 200,
+                'mensagem' => 'Pizza encontrada com sucesso!',
                 'pizza' => $pizza
-            ];
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 500,
+                'mensagem' => 'Erro ao buscar pizza!',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        return [
-            'status' => 200,
-            'message' => 'Pizza encontrada com sucesso!',
-            'pizza' => $pizza
-        ];
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(PizzaRequest $request, string $id)
     {
-        $pizza = Pizza::find($id);
+        try {
+            $pizza = Pizza::find($id);
 
-        if (!$pizza) {
+            if (!$pizza) {
+                return response()->json([
+                    'status' => 404,
+                    'mensagem' => 'Pizza não encontrada!',
+                ], 404);
+            }
+
+            $validatedData = $request->validated();
+            $pizza->update([
+                'name' => $validatedData['name'],
+                'description' => $validatedData['description'],
+                'size' => TamanhoEnum::from($validatedData['size']),
+                'format' => $validatedData['format'],
+                'price' => $validatedData['price'],
+            ]);
+
             return response()->json([
-                'status' => 404,
-                'mensagem' => 'Pizza não encontrada!'
-            ], 404);
+                'status' => 200,
+                'mensagem' => 'Pizza atualizada com sucesso!',
+                'pizza' => $pizza
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 500,
+                'mensagem' => 'Erro ao atualizar pizza!',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $pizza->update([
-            'name' => $request->input('name'),
-            'description' => $request->input('description'),
-            'size' => $request->input('size'),
-            'format' => $request->input('format'),
-            'price' => $request->input('price'),
-        ]);
-
-        return response()->json([
-            'status' => 200,
-            'mensagem' => 'Pizza atualizada com sucesso!',
-            'pizza' => $pizza
-        ]);
     }
 
     /**
@@ -132,20 +136,28 @@ class PizzaController extends Controller
      */
     public function destroy(string $id)
     {
-        $pizza = Pizza::find($id);
+        try {
+            $pizza = Pizza::find($id);
 
-        if (!$pizza) {
+            if (!$pizza) {
+                return response()->json([
+                    'status' => 404,
+                    'mensagem' => 'Pizza não encontrada!',
+                ], 404);
+            }
+
+            $pizza->delete();
+
             return response()->json([
-                'status' => 404,
-                'mensagem' => 'Pizza não encontrada!'
-            ], 404);
+                'status' => 200,
+                'mensagem' => 'Pizza deletada com sucesso!',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 500,
+                'mensagem' => 'Erro ao deletar pizza!',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $pizza->delete();
-
-        return response()->json([
-            'status' => 200,
-            'mensagem' => 'Pizza deletada com sucesso!'
-        ]);
     }
 }

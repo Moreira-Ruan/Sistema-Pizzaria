@@ -31,11 +31,11 @@ class UserUpdateRequest extends FormRequest
                 'string',
                 'confirmed',
                 Password::min(8)
-                    ->letters()
-                    ->mixedCase()
-                    ->numbers()
-                    ->symbols()
-                    ->uncompromised(),
+                    ->letters() // Exige pelo menos uma letra 
+                    ->mixedCase() // Exige letras maiusculas e minusculas 
+                    ->numbers() //Exige pelo menos um numero 
+                    ->symbols() // Exige pelo menos um simbolo
+                    ->uncompromised(), // Verifica se a senha nao esta um listas publias de senhas comprometidas 
             ],
             'password_confirmation' => 'required|same:password'
         ];

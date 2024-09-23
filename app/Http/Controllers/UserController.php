@@ -1,5 +1,4 @@
 <?php
-// UserController.php
 
 namespace App\Http\Controllers;
 
@@ -15,15 +14,15 @@ class UserController extends Controller
     {
         Log::info('Entrou no método index do UserController');
         try {
-            $user = User::select('id', 'name', 'email')->paginate(10);
-            return [
+            $users = User::select('id', 'name', 'email')->paginate(10);
+            return response()->json([
                 'status' => 200,
-                'menssagem' => 'Usuários encontrados!!',
-                'user' => $user
-            ];
+                'mensagem' => 'Usuários encontrados com sucesso!',
+                'users' => $users
+            ]);
         } catch (\Exception $e) {
             Log::error('Erro no método index do UserController: ' . $e->getMessage());
-            return response()->json(['status' => 500, 'mensagem' => 'Erro interno do servidor']);
+            return response()->json(['status' => 500, 'mensagem' => 'Erro interno do servidor'], 500);
         }
     }
 
@@ -31,20 +30,20 @@ class UserController extends Controller
     {
         Log::info('Entrou no método store do UserController');
         try {
-            $data = $request->all();
+            $data = $request->validated();
             $user = User::create([
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'password' => bcrypt($data['password']),
             ]);
-            return [
+            return response()->json([
                 'status' => 200,
-                'menssagem' => 'Usuário cadastrado com sucesso!!',
+                'mensagem' => 'Usuário cadastrado com sucesso!',
                 'user' => $user
-            ];
+            ]);
         } catch (\Exception $e) {
             Log::error('Erro no método store do UserController: ' . $e->getMessage());
-            return response()->json(['status' => 500, 'mensagem' => 'Erro interno do servidor']);
+            return response()->json(['status' => 500, 'mensagem' => 'Erro interno do servidor'], 500);
         }
     }
 
@@ -54,20 +53,19 @@ class UserController extends Controller
         try {
             $user = User::find($id);
             if (!$user) {
-                return [
+                return response()->json([
                     'status' => 404,
-                    'message' => 'Usuário não encontrado! Que triste!',
-                    'user' => $user
-                ];
+                    'mensagem' => 'Usuário não encontrado!',
+                ], 404);
             }
-            return [
+            return response()->json([
                 'status' => 200,
-                'message' => 'Usuário encontrado com sucesso!!',
+                'mensagem' => 'Usuário encontrado com sucesso!',
                 'user' => $user
-            ];
+            ]);
         } catch (\Exception $e) {
             Log::error('Erro no método show do UserController: ' . $e->getMessage());
-            return response()->json(['status' => 500, 'mensagem' => 'Erro interno do servidor']);
+            return response()->json(['status' => 500, 'mensagem' => 'Erro interno do servidor'], 500);
         }
     }
 
@@ -75,24 +73,25 @@ class UserController extends Controller
     {
         Log::info('Entrou no método update do UserController');
         try {
-            $data = $request->all();
             $user = User::find($id);
             if (!$user) {
-                return [
+                return response()->json([
                     'status' => 404,
-                    'message' => 'Usuário não encontrado!',
-                    'user' => $user
-                ];
+                    'mensagem' => 'Usuário não encontrado!',
+                ], 404);
             }
+
+            $data = $request->validated();
             $user->update($data);
-            return [
+            
+            return response()->json([
                 'status' => 200,
-                'message' => 'Usuário atualizado com sucesso!!',
+                'mensagem' => 'Usuário atualizado com sucesso!',
                 'user' => $user
-            ];
+            ]);
         } catch (\Exception $e) {
             Log::error('Erro no método update do UserController: ' . $e->getMessage());
-            return response()->json(['status' => 500, 'mensagem' => 'Erro interno do servidor']);
+            return response()->json(['status' => 500, 'mensagem' => 'Erro interno do servidor'], 500);
         }
     }
 
@@ -104,17 +103,17 @@ class UserController extends Controller
             if (!$user) {
                 return response()->json([
                     'status' => 404,
-                    'mensagem' => 'Usuário não encontrado!'
+                    'mensagem' => 'Usuário não encontrado!',
                 ], 404);
             }
             $user->delete();
             return response()->json([
                 'status' => 200,
-                'mensagem' => 'Usuário deletado com sucesso!'
+                'mensagem' => 'Usuário deletado com sucesso!',
             ]);
         } catch (\Exception $e) {
             Log::error('Erro no método destroy do UserController: ' . $e->getMessage());
-            return response()->json(['status' => 500, 'mensagem' => 'Erro interno do servidor']);
+            return response()->json(['status' => 500, 'mensagem' => 'Erro interno do servidor'], 500);
         }
     }
 }
