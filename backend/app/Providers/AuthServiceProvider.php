@@ -21,6 +21,7 @@ class RouteServiceProvider extends ServiceProvider
     {
         // Custom bindings or patterns can go here
         parent::boot();
+        Passport::routes();
     }
 
     /**

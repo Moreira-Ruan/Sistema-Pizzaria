@@ -35,7 +35,7 @@ class UserUpdateRequest extends FormRequest
                     ->mixedCase() // Exige letras maiusculas e minusculas 
                     ->numbers() //Exige pelo menos um numero 
                     ->symbols() // Exige pelo menos um simbolo
-                    ->uncompromised(), // Verifica se a senha nao esta um listas publias de senhas comprometidas 
+                    ->uncompromised(), // Verifica se a senha nao esta um listas publicas de senhas comprometidas 
             ],
             'password_confirmation' => 'required|same:password'
         ];

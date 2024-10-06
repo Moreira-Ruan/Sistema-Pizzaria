@@ -7,6 +7,7 @@ use App\Http\Requests\UserUpdateRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -24,6 +25,17 @@ class UserController extends Controller
             Log::error('Erro no método index do UserController: ' . $e->getMessage());
             return response()->json(['status' => 500, 'mensagem' => 'Erro interno do servidor'], 500);
         }
+    }
+
+    public function me()
+    {
+        $user = Auth::user();
+
+        return [
+            'status' => 200,
+            'message' => 'Usuário logado!',
+            "usuario" => $user
+        ];
     }
 
     public function store(UserCreateRequest $request)
