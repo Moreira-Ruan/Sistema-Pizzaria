@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Auth\AuthenticationException;
 
 class UserController extends Controller
 {
@@ -22,6 +23,9 @@ class UserController extends Controller
                 'users' => $users
             ]);
         } catch (\Exception $e) {
+            if ($e instanceof AuthenticationException) {
+                return response()->json(['status' => 401, 'mensagem' => 'Token inválido ou expirado'], 401);
+            }
             Log::error('Erro no método index do UserController: ' . $e->getMessage());
             return response()->json(['status' => 500, 'mensagem' => 'Erro interno do servidor'], 500);
         }
@@ -95,7 +99,7 @@ class UserController extends Controller
 
             $data = $request->validated();
             $user->update($data);
-            
+
             return response()->json([
                 'status' => 200,
                 'mensagem' => 'Usuário atualizado com sucesso!',

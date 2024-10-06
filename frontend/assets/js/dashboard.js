@@ -1,12 +1,24 @@
+// dashboard.js ajustado com controle de loops e tentativas
+
 document.addEventListener("DOMContentLoaded", function() {
     const welcomeMessage = document.getElementById('welcomeMessage');
-
-    // Obter o token do localStorage
     const token = localStorage.getItem('token');
-    console.log(token)
+    console.log(token);
 
     if (token) {
-        // Fazer uma requisição para a API protegida para obter os dados do usuário
+        fetchUserData(token);
+    } else {
+        console.log('Token não encontrado. Solicite ao usuário que faça login novamente.');
+        const mensagemErro = document.createElement('div');
+        mensagemErro.textContent = 'Token não encontrado. Por favor, faça login novamente.';
+        mensagemErro.classList.add('alert', 'alert-danger');
+        document.body.prepend(mensagemErro);
+    }
+
+    function fetchUserData(token) {
+        let retryCount = 0;
+        const maxRetries = 3;
+
         fetch('http://localhost:8000/api/user', {
             method: 'GET',
             headers: {
@@ -14,26 +26,30 @@ document.addEventListener("DOMContentLoaded", function() {
                 'Content-Type': 'application/json'
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro ao buscar dados do usuário: ' + response.status);
+            }
+            return response.json();
+        })
         .then(data => {
-            console.log('Dados da API:', data); // Adicionado para depuração
-
             if (data && data.usuario && data.usuario.name) {
-                // Exibir o nome do usuário
-                welcomeMessage.textContent = `Bem-vindo, ${data.usuario.name}!`;
+                welcomeMessage.textContent = `Welcome, ${data.usuario.name}!`;
             } else {
-                // Se não encontrar os dados do usuário, redirecionar para a página de login
-                console.log('Usuário não encontrado, redirecionando...');
-                window.location.href = 'signin.html'; 
+                alert('Usuário não encontrado. Faça login novamente.');
+                window.location.href = 'signin.html';
             }
         })
         .catch(error => {
-            console.log("Erro ao obter os dados do usuário:", error);
-            window.location.href = 'signin.html'; // Redireciona se houver erro
+            retryCount++;
+            if (retryCount <= maxRetries) {
+                console.log(`Tentativa ${retryCount} de ${maxRetries}`);
+                fetchUserData(token);
+            } else {
+                console.error('Erro ao carregar os dados do usuário após várias tentativas:', error);
+                alert('Erro ao carregar os dados do usuário. Faça login novamente.');
+                window.location.href = 'signin.html';
+            }
         });
-    } else {
-        // Redireciona para o login se o token não existir
-        console.log('Token não encontrado, redirecionando para a página de login...');
-        window.location.href = 'signin.html';
     }
 });

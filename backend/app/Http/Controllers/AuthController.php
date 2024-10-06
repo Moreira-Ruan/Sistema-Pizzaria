@@ -6,6 +6,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Passport\TokenRepository;
 
+/**
+ * Class AuthController
+ *
+ * @package App\Http\Controllers
+ * @author Vinícius Siqueira
+ * @link https://github.com/ViniciusSCS
+ * @date 2024-10-01 15:52:14
+ * @copyright UniEVANGÉLICA
+ */
 class AuthController extends Controller
 {
     protected $tokenRepository;
@@ -18,15 +27,15 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         //Receber a credencial (email e senha)
-        $credential = $request->only('email', 'password');
+        $data = $request->all();
 
-        //Verificoaas credenciais estão no Banco
-        if (Auth::guard('web')->attempt(['email' => strtolower($credential['email']), 'password' => $credential['password']])) {
+        //Verificar se credenciais estão no Banco
+        if (Auth::attempt(['email' => strtolower($data['email']), 'password' => $data['password']])) {
             //Autentica o usuário
-            $user = auth()->guard('web')->user();
+            $user = Auth::user();
 
             //cria um token
-            $user->token = $user->createToken($user->email)->accessToken;
+            $user->token = $user->createToken($user->email)->plainTextToken;
             return [
                 'status' => 200,
                 'message' => "Usuário logado com sucesso",
@@ -42,12 +51,10 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        $token = $request->user()->token();
-        if ($token) {
-            $this->tokenRepository->revokeAccessToken($token->id);
-            return ['status' => true, 'message' => "Usuário deslogado com sucesso!"];
-        }
+        $tokenId = $request->user()->token()->id;
 
-        return ['status' => false, 'message' => "Token não encontrado!"];
+        $this->tokenRepository->revokeAccessToken($tokenId);
+
+        return ['status' => true, 'message' => "Usuário deslogado com sucesso!"];
     }
 }
